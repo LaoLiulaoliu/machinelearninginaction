@@ -39,6 +39,8 @@ def splitDataSet(dataSet, axis, value):
     return retDataSet
     
 def chooseBestFeatureToSplit(dataSet):
+    """ calculate the all feature's information gain, choose the best.
+    """
     numFeatures = len(dataSet[0]) - 1      #the last column is used for the labels
     baseEntropy = calcShannonEnt(dataSet)
     bestInfoGain = 0.0; bestFeature = -1
@@ -65,6 +67,8 @@ def majorityCnt(classList):
     return sortedClassCount[0][0]
 
 def createTree(dataSet,labels):
+    """ based on info gain, calculate the whold tree
+    """
     classList = [example[-1] for example in dataSet]
     if classList.count(classList[0]) == len(classList): 
         return classList[0]#stop splitting when all of the classes are equal
@@ -81,7 +85,9 @@ def createTree(dataSet,labels):
         myTree[bestFeatLabel][value] = createTree(splitDataSet(dataSet, bestFeat, value),subLabels)
     return myTree                            
     
-def classify(inputTree,featLabels,testVec):
+def classify(inputTree, featLabels, testVec):
+    """ based on tree and labels, decide the vector's result
+    """
     firstStr = inputTree.keys()[0]
     secondDict = inputTree[firstStr]
     featIndex = featLabels.index(firstStr)
@@ -102,4 +108,9 @@ def grabTree(filename):
     import pickle
     fr = open(filename)
     return pickle.load(fr)
-    
+
+if __name__ == '__main__':
+    dataSet, labels = createDataSet()
+    _labels = labels[:]
+    myTree = createTree(dataSet, labels)
+    classify(myTree, _labels, [1, 0])
