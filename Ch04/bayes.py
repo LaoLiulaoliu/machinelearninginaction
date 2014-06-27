@@ -22,6 +22,8 @@ def createVocabList(dataSet):
     return list(vocabSet)
 
 def setOfWords2Vec(vocabList, inputSet):
+    """ set-of-words model
+    """
     returnVec = [0]*len(vocabList)
     for word in inputSet:
         if word in vocabList:
@@ -29,11 +31,14 @@ def setOfWords2Vec(vocabList, inputSet):
         else: print "the word: %s is not in my Vocabulary!" % word
     return returnVec
 
-def trainNB0(trainMatrix,trainCategory):
+def trainNB0(trainMatrix, trainCategory):
+    """ P(c | w) = P(w | c) * P(c) / P(w) , c means class, w means words
+        P(w | c) = P(w1, w2, .., wn | c) = P(w1|c) P(w2|c) .. P(wn|c), all words are conditional independent
+    """
     numTrainDocs = len(trainMatrix)
     numWords = len(trainMatrix[0])
     pAbusive = sum(trainCategory)/float(numTrainDocs)
-    p0Num = ones(numWords); p1Num = ones(numWords)      #change to ones() 
+    p0Num = ones(numWords); p1Num = ones(numWords)      #change to ones(), one is 0, all multiply result are 0
     p0Denom = 2.0; p1Denom = 2.0                        #change to 2.0
     for i in range(numTrainDocs):
         if trainCategory[i] == 1:
@@ -42,11 +47,13 @@ def trainNB0(trainMatrix,trainCategory):
         else:
             p0Num += trainMatrix[i]
             p0Denom += sum(trainMatrix[i])
-    p1Vect = log(p1Num/p1Denom)          #change to log()
+    p1Vect = log(p1Num/p1Denom)          #change to log(), 太多很小数相乘得零
     p0Vect = log(p0Num/p0Denom)          #change to log()
-    return p0Vect,p1Vect,pAbusive
+    return p0Vect,p1Vect,pAbusive        #p(w|c0), p(w|c1), p(c1)
 
 def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
+    """ P(c | w) = P(w | c) * P(c) / P(w) , c means class, w means words
+    """
     p1 = sum(vec2Classify * p1Vec) + log(pClass1)    #element-wise mult
     p0 = sum(vec2Classify * p0Vec) + log(1.0 - pClass1)
     if p1 > p0:
@@ -55,6 +62,8 @@ def classifyNB(vec2Classify, p0Vec, p1Vec, pClass1):
         return 0
     
 def bagOfWords2VecMN(vocabList, inputSet):
+    """ bag-of-words model
+    """
     returnVec = [0]*len(vocabList)
     for word in inputSet:
         if word in vocabList:
@@ -74,6 +83,7 @@ def testingNB():
     testEntry = ['stupid', 'garbage']
     thisDoc = array(setOfWords2Vec(myVocabList, testEntry))
     print testEntry,'classified as: ',classifyNB(thisDoc,p0V,p1V,pAb)
+
 
 def textParse(bigString):    #input is big string, #output is word list
     import re
@@ -109,17 +119,17 @@ def spamTest():
             errorCount += 1
             print "classification error",docList[docIndex]
     print 'the error rate is: ',float(errorCount)/len(testSet)
-    #return vocabList,fullText
+    #return vocabList, fullText
 
-def calcMostFreq(vocabList,fullText):
+def calcMostFreq(vocabList, fullText):
     import operator
     freqDict = {}
     for token in vocabList:
-        freqDict[token]=fullText.count(token)
+        freqDict[token] = fullText.count(token)
     sortedFreq = sorted(freqDict.iteritems(), key=operator.itemgetter(1), reverse=True) 
     return sortedFreq[:30]       
 
-def localWords(feed1,feed0):
+def localWords(feed1, feed0):
     docList=[]; classList = []; fullText =[]
     minLen = min(len(feed1['entries']),len(feed0['entries']))
     for i in range(minLen):
@@ -175,6 +185,9 @@ def getTopWords(ny,sf):
         print item[0]
 
 if __name__ == '__main__':
+    testingNB()
+    spamTest()
+
     import feedparser
     ny = feedparser.parse('http://newyork.craigslist.org/stp/index.rss')
     sf = feedparser.parse('http://sfbay.craigslist.org/stp/index.rss')

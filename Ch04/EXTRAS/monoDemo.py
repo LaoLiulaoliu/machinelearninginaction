@@ -7,7 +7,7 @@ from numpy import *
 import matplotlib
 import matplotlib.pyplot as plt
 
-t = arange(0.0, 0.5, 0.01)
+t = arange(0.0, 0.5, 0.01)[1:]
 s = sin(2*pi*t)
 logS = log(s)
 
