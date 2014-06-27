@@ -30,7 +30,7 @@ def stocGradAscent1(dataMatrix, classLabels):
     for j in range(40):
         dataIndex = range(m)
         for i in range(m):
-            alpha = 4/(1.0+j+i)+0.01
+            alpha = 4/(1.0+j+i)+0.0001
             randIndex = int(random.uniform(0,len(dataIndex)))
             h = logRegres.sigmoid(sum(dataMatrix[randIndex]*weights))
             error = classLabels[randIndex] - h
