@@ -1,3 +1,4 @@
+# -*- coding: utf-8
 '''
 Created on Oct 27, 2010
 Logistic Regression Working Module
@@ -47,12 +48,15 @@ def plotBestFit(weights):
     ax.scatter(xcord1, ycord1, s=30, c='red', marker='s')
     ax.scatter(xcord2, ycord2, s=30, c='green')
     x = arange(-3.0, 3.0, 0.1)
-    y = (-weights[0]-weights[1]*x)/weights[2]
+    y = (-weights[0]-weights[1]*x)/weights[2] # decision boundary. hθ(x) = g(θTx) = 0.5
     ax.plot(x, y)
     plt.xlabel('X1'); plt.ylabel('X2');
     plt.show()
 
 def stocGradAscent0(dataMatrix, classLabels):
+    """随机梯度上升算法，数据量大时，增量式更新
+       all parameter are array type
+    """
     m,n = shape(dataMatrix)
     alpha = 0.01
     weights = ones(n)   #initialize to all ones
@@ -63,12 +67,15 @@ def stocGradAscent0(dataMatrix, classLabels):
     return weights
 
 def stocGradAscent1(dataMatrix, classLabels, numIter=150):
+    """ alpha decrease every iteration, make weight converge faster and avoid the high frequency fluctuation.
+        randomly picked sample, avoid weight periodic fluctuation.
+    """
     m,n = shape(dataMatrix)
     weights = ones(n)   #initialize to all ones
     for j in range(numIter):
         dataIndex = range(m)
         for i in range(m):
-            alpha = 4/(1.0+j+i)+0.0001    #apha decreases with iteration, does not 
+            alpha = 4/(1.0+j+i)+0.0001    #apha decreases with iteration
             randIndex = int(random.uniform(0,len(dataIndex)))#go to 0 because of the constant
             h = sigmoid(sum(dataMatrix[randIndex]*weights))
             error = classLabels[randIndex] - h
@@ -115,3 +122,5 @@ if __name__ == '__main__':
     dataMat, labelMat = loadDataSet()
     weight = gradAscent(dataMat, labelMat)
     plotBestFit(weight.getA())
+
+    multiTest()
