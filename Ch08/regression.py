@@ -30,7 +30,7 @@ def standRegres(xArr,yArr):
 def lwlr(testPoint,xArr,yArr,k=1.0):
     xMat = mat(xArr); yMat = mat(yArr).T
     m = shape(xMat)[0]
-    weights = mat(eye((m)))
+    weights = mat(eye(m))
     for j in range(m):                      #next 2 lines create weights matrix
         diffMat = testPoint - xMat[j,:]     #
         weights[j,j] = exp(diffMat*diffMat.T/(-2.0*k**2))
@@ -38,7 +38,7 @@ def lwlr(testPoint,xArr,yArr,k=1.0):
     if linalg.det(xTx) == 0.0:
         print "This matrix is singular, cannot do inverse"
         return
-    ws = xTx.I * (xMat.T * (weights * yMat))
+    ws = xTx.I * (xMat.T * (weights * yMat)) # shape(ws) = (n, 1)
     return testPoint * ws
 
 def lwlrTest(testArr,xArr,yArr,k=1.0):  #loops over all the data points and applies lwlr to each one
@@ -67,7 +67,7 @@ def ridgeRegres(xMat,yMat,lam=0.2):
         return
     ws = denom.I * (xMat.T*yMat)
     return ws
-    
+
 def ridgeTest(xArr,yArr):
     xMat = mat(xArr); yMat=mat(yArr).T
     yMean = mean(yMat,0)
@@ -100,7 +100,7 @@ def stageWise(xArr,yArr,eps=0.01,numIt=100):
     ws = zeros((n,1)); wsTest = ws.copy(); wsMax = ws.copy()
     for i in range(numIt):
         print ws.T
-        lowestError = inf; 
+        lowestError = inf;
         for j in range(n):
             for sign in [-1,1]:
                 wsTest = ws.copy()
@@ -142,7 +142,7 @@ def stageWise(xArr,yArr,eps=0.01,numIt=100):
 #        i += 1
 #        currentRow = soup.findAll('table', r="%d" % i)
 #    fw.close()
-    
+
 from time import sleep
 import json
 import urllib2
@@ -166,7 +166,7 @@ def searchForSet(retX, retY, setNum, yr, numPce, origPrc):
                     retX.append([yr, numPce, newFlag, origPrc])
                     retY.append(sellingPrice)
         except: print 'problem with item %d' % i
-    
+
 def setDataCollect(retX, retY):
     searchForSet(retX, retY, 8288, 2006, 800, 49.99)
     searchForSet(retX, retY, 10030, 2002, 3096, 269.99)
@@ -174,9 +174,9 @@ def setDataCollect(retX, retY):
     searchForSet(retX, retY, 10181, 2007, 3428, 199.99)
     searchForSet(retX, retY, 10189, 2008, 5922, 299.99)
     searchForSet(retX, retY, 10196, 2009, 3263, 249.99)
-    
+
 def crossValidation(xArr,yArr,numVal=10):
-    m = len(yArr)                           
+    m = len(yArr)
     indexList = range(m)
     errorMat = zeros((numVal,30))#create error mat 30columns numVal rows
     for i in range(numVal):
@@ -184,7 +184,7 @@ def crossValidation(xArr,yArr,numVal=10):
         testX = []; testY = []
         random.shuffle(indexList)
         for j in range(m):#create training set based on first 90% of values in indexList
-            if j < m*0.9: 
+            if j < m*0.9:
                 trainX.append(xArr[indexList[j]])
                 trainY.append(yArr[indexList[j]])
             else:
@@ -210,3 +210,14 @@ def crossValidation(xArr,yArr,numVal=10):
     unReg = bestWeights/varX
     print "the best model from Ridge Regression is:\n",unReg
     print "with constant term: ",-1*sum(multiply(meanX,unReg)) + mean(yMat)
+
+
+def test_func():
+    abX, abY = loadDataSet('abalone.txt')
+    yHat = lwlrTest(abX[0:99], abX[0:99], abY[0:99], 0.1)
+    return yHat, abY
+
+if __name__ == '__main__':
+    abX, abY = loadDataSet('abalone.txt')
+    yHat = lwlrTest(abX[0:99], abX[0:99], abY[0:99], 0.1)
+

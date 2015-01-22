@@ -35,10 +35,10 @@ def plotBestFit(weights):
     import matplotlib.pyplot as plt
     dataMat,labelMat=loadDataSet()
     dataArr = array(dataMat)
-    n = shape(dataArr)[0] 
+    m = shape(dataArr)[0]
     xcord1 = []; ycord1 = []
     xcord2 = []; ycord2 = []
-    for i in range(n):
+    for i in range(m):
         if int(labelMat[i]) == 1:
             xcord1.append(dataArr[i,1]); ycord1.append(dataArr[i,2])
         else:
@@ -117,7 +117,7 @@ def multiTest():
     for k in range(numTests):
         errorSum += colicTest()
     print "after %d iterations the average error rate is: %f" % (numTests, errorSum/float(numTests))
-        
+
 if __name__ == '__main__':
     dataMat, labelMat = loadDataSet()
     weight = gradAscent(dataMat, labelMat)

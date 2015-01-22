@@ -67,7 +67,7 @@ def ridgeRegres(xMat,yMat,lam=0.2):
         return
     ws = denom.I * (xMat.T*yMat)
     return ws
-    
+
 def ridgeTest(xArr,yArr):
     xMat = mat(xArr); yMat=mat(yArr).T
     yMean = mean(yMat,0)
@@ -100,7 +100,7 @@ def stageWise(xArr,yArr,eps=0.01,numIt=100):
     ws = zeros((n,1)); wsTest = ws.copy(); wsMax = ws.copy()
     for i in range(numIt):#could change this to while loop
         #print ws.T
-        lowestError = inf; 
+        lowestError = inf;
         for j in range(n):
             for sign in [-1,1]:
                 wsTest = ws.copy()
@@ -143,7 +143,7 @@ def scrapePage(inFile,outFile,yr,numPce,origPrc):
         i += 1
         currentRow = soup.findAll('table', r="%d" % i)
     fw.close()
-    
+
 def setDataCollect():
     scrapePage('setHtml/lego8288.html','out.txt', 2006, 800, 49.99)
     scrapePage('setHtml/lego10030.html','out.txt', 2002, 3096, 269.99)
@@ -151,9 +151,9 @@ def setDataCollect():
     scrapePage('setHtml/lego10181.html','out.txt', 2007, 3428, 199.99)
     scrapePage('setHtml/lego10189.html','out.txt', 2008, 5922, 299.99)
     scrapePage('setHtml/lego10196.html','out.txt', 2009, 3263, 249.99)
-    
+
 def crossValidation(xArr,yArr,numVal=10):
-    m = len(yArr)                           
+    m = len(yArr)
     indexList = range(m)
     errorMat = zeros((numVal,30))#create error mat 30columns numVal rows
     for i in range(numVal):
@@ -161,7 +161,7 @@ def crossValidation(xArr,yArr,numVal=10):
         testX = []; testY = []
         random.shuffle(indexList)
         for j in range(m):#create training set based on first 90% of values in indexList
-            if j < m*0.9: 
+            if j < m*0.9:
                 trainX.append(xArr[indexList[j]])
                 trainY.append(yArr[indexList[j]])
             else:
