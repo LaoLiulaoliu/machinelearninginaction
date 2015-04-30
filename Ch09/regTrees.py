@@ -12,7 +12,7 @@ def loadDataSet(fileName):      #general function to parse tab -delimited floats
         curLine = line.strip().split('\t')
         fltLine = map(float,curLine) #map all elements to float()
         dataMat.append(fltLine)
-    return dataMat
+    return mat(dataMat)
 
 def binSplitDataSet(dataSet, feature, value):
     mat0 = dataSet[nonzero(dataSet[:,feature] > value)[0],:][0]
@@ -49,6 +49,7 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
     tolS = ops[0]; tolN = ops[1]
     #if all the target variables are the same value: quit and return value
     if len(set(dataSet[:,-1].T.tolist()[0])) == 1: #exit cond 1
+        print(1)
         return None, leafType(dataSet)
     m,n = shape(dataSet)
     #the choice of the best feature is driven by Reduction in RSS error from mean
@@ -65,9 +66,11 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
                 bestS = newS
     #if the decrease (S-bestS) is less than a threshold don't do the split
     if (S - bestS) < tolS: 
+        print(2)
         return None, leafType(dataSet) #exit cond 2
     mat0, mat1 = binSplitDataSet(dataSet, bestIndex, bestValue)
     if (shape(mat0)[0] < tolN) or (shape(mat1)[0] < tolN):  #exit cond 3
+        print(3)
         return None, leafType(dataSet)
     return bestIndex,bestValue#returns the best feature to split on
                               #and the value used for that split
@@ -75,10 +78,11 @@ def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):
 def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1,4)):#assume dataSet is NumPy Mat so we can array filtering
     feat, val = chooseBestSplit(dataSet, leafType, errType, ops)#choose the best split
     if feat == None: return val #if the splitting hit a stop condition return val
+    lSet, rSet = binSplitDataSet(dataSet, feat, val)
+    print('split tree')
     retTree = {}
     retTree['spInd'] = feat
     retTree['spVal'] = val
-    lSet, rSet = binSplitDataSet(dataSet, feat, val)
     retTree['left'] = createTree(lSet, leafType, errType, ops)
     retTree['right'] = createTree(rSet, leafType, errType, ops)
     return retTree  
@@ -96,7 +100,7 @@ def prune(tree, testData):
     if (isTree(tree['right']) or isTree(tree['left'])):#if the branches are not trees try to prune them
         lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
     if isTree(tree['left']): tree['left'] = prune(tree['left'], lSet)
-    if isTree(tree['right']): tree['right'] =  prune(tree['right'], rSet)
+    if isTree(tree['right']): tree['right'] = prune(tree['right'], rSet)
     #if they are now both leafs, see if we can merge them
     if not isTree(tree['left']) and not isTree(tree['right']):
         lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
@@ -134,3 +138,28 @@ def createForeCast(tree, testData, modelEval=regTreeEval):
     for i in range(m):
         yHat[i,0] = treeForeCast(tree, mat(testData[i]), modelEval)
     return yHat
+
+if __name__ == '__main__':
+    data = loadDataSet('ex0.txt')
+    tree = createTree(mat(data), ops=(1, 4))
+    print(tree)
+    print(mean( mat(data)[:, -1] ))
+    print( getMean(tree) )
+
+
+# compare of regression tree, model tree, linear regression.
+    trainMat = loadDataSet('bikeSpeedVsIq_train.txt')
+    testMat  = loadDataSet('bikeSpeedVsIq_test.txt')
+
+    myTree = createTree(trainMat, ops=(1, 20))
+    yHat = createForeCast(myTree, testMat[:, 0])
+    corrcoef(yHat, testMat[:, 1], rowvar=0)[0, 1]
+
+    myTree = createTree(trainMat, modelLeaf, modelErr, ops=(1, 20))
+    yHat = createForeCast(myTree, testMat[:, 0], modelTreeEval)
+    corrcoef(yHat, testMat[:, 1], rowvar=0)[0, 1]
+
+    ws, X, Y = linearSolve(trainMat)
+    for i in range(testMat.shape[0]):
+        yHat[i] = testMat[i, 0] * ws[1, 0] + ws[0, 0]
+    corrcoef(yHat, testMat[:, 1], rowvar=0)[0, 1]

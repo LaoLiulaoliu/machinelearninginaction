@@ -202,6 +202,7 @@ def crossValidation(xArr,yArr,numVal=10):
     meanErrors = mean(errorMat,0)#calc avg performance of the different ridge weight vectors
     minMean = float(min(meanErrors))
     bestWeights = wMat[nonzero(meanErrors==minMean)]
+    print(wMat.shape, errorMat.shape) # (30, 8), (10, 30)
     #can unregularize to get model
     #when we regularized we wrote Xreg = (x-meanX)/var(x)
     #we can now write in terms of x not Xreg:  x*w/var(x) - meanX/var(x) +meanY
@@ -219,5 +220,6 @@ def test_func():
 
 if __name__ == '__main__':
     abX, abY = loadDataSet('abalone.txt')
-    yHat = lwlrTest(abX[0:99], abX[0:99], abY[0:99], 0.1)
+    crossValidation(abX,abY,numVal=10)
+#    yHat = lwlrTest(abX[0:99], abX[0:99], abY[0:99], 0.1)
 
